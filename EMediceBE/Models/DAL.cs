@@ -148,5 +148,67 @@ namespace EMediceBE.Models
             }
             return response;
         }
+        public Response placeOrder(Users users, SqlConnection connection)
+        {
+            Response response = new Response();
+            SqlCommand cmd = new SqlCommand("sp_PlaceOrder", connection);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@id", users.id);
+            int i = cmd.ExecuteNonQuery();
+            connection.Close();
+            if (i > 0)
+            {
+                response.StatusCode = 200;
+                response.StatusMessage = "Order placed successfully";
+            }
+            else
+            {
+                response.StatusCode = 100;
+                response.StatusMessage = "Order failed, try again! ";
+            }
+            return response;
+        }
+        public Response orderList(Users users, SqlConnection connection)
+        {
+            Response response = new Response();
+            List<Orders> listOrder = new List<Orders>();
+            SqlDataAdapter da = new SqlDataAdapter("sp_OrderList", connection);
+            da.SelectCommand.CommandType = CommandType.StoredProcedure;
+            da.SelectCommand.Parameters.AddWithValue("@type", users.type);
+            da.SelectCommand.Parameters.AddWithValue("@id", users.id);
+            DataTable dt = new DataTable();
+            da.Fill(dt);
+            if(dt.Rows.Count > 0)
+            {
+                for(int i=0; i < dt.Rows.Count; i++)
+                {
+                    Orders order = new Orders();
+                    order.id = Convert.ToInt64(dt.Rows[i]["id"]);
+                    order.order_no = Convert.ToString(dt.Rows[i]["order_no"]);
+                    order.order_total = Convert.ToDecimal(dt.Rows[i]["order_total"]);
+                    order.order_status = Convert.ToString(dt.Rows[i]["order_status"]);
+                    listOrder.Add(order);
+                    if (listOrder.Count > 0)
+                    {
+                        response.StatusCode = 200;
+                        response.StatusMessage = "Order details fetched";
+                        response.listOrders = listOrder;
+                    }
+                    else
+                    {
+                        response.StatusCode = 100;
+                        response.StatusMessage = "Order details, not available!";
+                        response.listOrders = null;
+                    }
+                }
+            }
+            else
+            {
+                response.StatusCode = 100;
+                response.StatusMessage = "Order details, not available!";
+                response.listOrders = null;
+            }
+            return response;
+        }
     }
 }

@@ -31,5 +31,35 @@ namespace EMediceBE.Controllers
                 return Ok(response);
             }
         }
+        [HttpPost]
+        [Route("updateProfile")]
+        public IActionResult placeOrder(Users users)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            DAL dal = new DAL();
+            using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("myConnection").ToString()))
+            {
+                Response response = dal.placeOrder(users, connection);
+                return Ok(response); // Return HTTP 200 OK with the response data
+            }
+        }
+        [HttpGet]
+        [Route("orderList")]
+        public IActionResult orderList(Users users)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            DAL dal = new DAL();
+            using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("myConnection").ToString()))
+            {
+                Response response = dal.orderList(users, connection);
+                return Ok(response); // Return HTTP 200 OK with the response data
+            }
+        }
     }
 }

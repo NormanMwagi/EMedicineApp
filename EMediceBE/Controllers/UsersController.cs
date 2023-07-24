@@ -88,6 +88,7 @@ namespace EMediceBE.Controllers
                 return Ok(response); // Return HTTP 200 OK with the response data
             }
         }
+
     }
 
     }
