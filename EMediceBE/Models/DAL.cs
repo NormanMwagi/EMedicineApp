@@ -210,5 +210,79 @@ namespace EMediceBE.Models
             }
             return response;
         }
+        //Admin
+        public Response addUpdateMedicine(Medicines medicines, SqlConnection connection)
+        {
+            Response response = new Response();
+            SqlCommand cmd = new SqlCommand("sp_AddUpdateMedicine", connection);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@name", medicines.name);
+            cmd.Parameters.AddWithValue("@manufacturer", medicines.manufacturer);
+            cmd.Parameters.AddWithValue("@unit_price", medicines.unit_price);
+            cmd.Parameters.AddWithValue("@discount", medicines.discount);
+            cmd.Parameters.AddWithValue("@quantity", medicines.quantity);
+            cmd.Parameters.AddWithValue("@exp_date", medicines.exp_date);
+            cmd.Parameters.AddWithValue("@img_url", medicines.img_url);
+            cmd.Parameters.AddWithValue("@status", medicines.status);
+            connection.Open();
+            int i = cmd.ExecuteNonQuery();
+            connection.Close();
+            if (i > 0)
+            {
+                response.StatusCode = 200;
+                response.StatusMessage = "Medicine saved";
+            }
+            else
+            {
+                response.StatusCode = 100;
+                response.StatusMessage = "Medicine not saved";
+            }
+            return response;
+        }
+        public Response userList(SqlConnection connection)
+        {
+            Response response = new Response();
+            List<Users> listUsers = new List<Users>();
+            SqlDataAdapter da = new SqlDataAdapter("sp_UserList", connection);
+            da.SelectCommand.CommandType = CommandType.StoredProcedure;
+            DataTable dt = new DataTable();
+            da.Fill(dt);
+            if (dt.Rows.Count > 0)
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    Users user = new Users();
+                    user.id = Convert.ToInt64(dt.Rows[0]["id"]);
+                    user.first_name = Convert.ToString(dt.Rows[0]["first_name"]);
+                    user.last_name = Convert.ToString(dt.Rows[0]["last_name"]);
+                    user.password = Convert.ToString(dt.Rows[0]["password"]);
+                    user.email = Convert.ToString(dt.Rows[0]["email"]);
+                    user.fund = Convert.ToDecimal(dt.Rows[0]["fund"]);
+                    user.status = Convert.ToInt64(dt.Rows[0]["status"]);
+                    user.created_on = Convert.ToDateTime(dt.Rows[0]["created_on"]);
+                    listUsers.Add(user);
+                    if (listUsers.Count > 0)
+                    {
+                        response.StatusCode = 200;
+                        response.StatusMessage = "Users details fetched";
+                        response.listUsers = listUsers;
+                    }
+                    else
+                    {
+                        response.StatusCode = 100;
+                        response.StatusMessage = "Users details, not available!";
+                        response.listUsers = null;
+                    }
+                }
+            }
+            else
+            {
+                response.StatusCode = 100;
+                response.StatusMessage = "Users details, not available!";
+                response.listUsers = null;
+            }
+            return response;
+        }
     }
-}
+    }
+

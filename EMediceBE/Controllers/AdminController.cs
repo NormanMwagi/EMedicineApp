@@ -8,47 +8,31 @@ namespace EMediceBE.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MedicineController : ControllerBase
+    public class AdminController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        public MedicineController(IConfiguration configuration)
+        public AdminController(IConfiguration configuration)
         {
-                _configuration = configuration;
+            _configuration = configuration;
         }
         [HttpPost]
-        [Route("addToCart")]
-        public IActionResult addToCart(Cart cart)
+        [Route("addUpdateMedicine")]
+        public IActionResult addUpdateMedicine(Medicines medicines)
         {
-            
-            if (!ModelState.IsValid)
+            if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
             DAL dal = new DAL();
             using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("myConnection").ToString()))
             {
-                Response response = dal.addToCart(cart, connection);
-                return Ok(response);
-            }
-        }
-        [HttpPost]
-        [Route("updateProfile")]
-        public IActionResult placeOrder(Users users)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            DAL dal = new DAL();
-            using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("myConnection").ToString()))
-            {
-                Response response = dal.placeOrder(users, connection);
+                Response response = dal.addUpdateMedicine(medicines, connection);
                 return Ok(response); // Return HTTP 200 OK with the response data
             }
         }
-        [HttpPost]
-        [Route("orderList")]
-        public IActionResult orderList(Users users)
+        [HttpGet]
+        [Route("userList")]
+        public IActionResult userList()
         {
             if (!ModelState.IsValid)
             {
@@ -57,7 +41,7 @@ namespace EMediceBE.Controllers
             DAL dal = new DAL();
             using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("myConnection").ToString()))
             {
-                Response response = dal.orderList(users, connection);
+                Response response = dal.userList(connection);
                 return Ok(response); // Return HTTP 200 OK with the response data
             }
         }
